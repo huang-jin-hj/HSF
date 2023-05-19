@@ -53,6 +53,7 @@ public class HJHSFCommunication implements ApplicationContextAware {
     }
 
     public void listen() {
+        //todo 自定义协议 socket复用 nio
         new Thread(() -> {
             while (true) {
                 Socket accept;

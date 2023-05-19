@@ -18,7 +18,6 @@ public class HJHSFScannerRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         MyHSFScan myHSFScan = new MyHSFScan(registry);
-        //这里先写死扫描路径, 后面可以动态
         try {
             myHSFScan.doScan1(deducePackage(registry));
         } catch (ClassNotFoundException e) {
@@ -27,6 +26,8 @@ public class HJHSFScannerRegistrar implements ImportBeanDefinitionRegistrar {
     }
 
     private static String deducePackage(BeanDefinitionRegistry registry){
+        //todo 没有想到好办法获取启动类的路径, 只能用反射强制获取 不够好 因为代码走到这里下面这个bean
+        //还没有被初始化完成 不然就可以调用org.springframework.boot.autoconfigure.AutoConfigurationPackages.get()方法直接获取路径
         Field basePackages = null;
         try {
             BeanDefinition beanDefinition = registry.getBeanDefinition(AutoConfigurationPackages.class.getName());
