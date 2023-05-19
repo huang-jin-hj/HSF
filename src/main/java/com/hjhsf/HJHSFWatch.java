@@ -43,6 +43,7 @@ public class HJHSFWatch implements Watcher {
         try {
             this.createPersistentNode(HJHSF_NODE + "/" + pathInfo, false);
             this.watch(HJHSF_NODE + "/" + pathInfo);
+            //todo 这里似乎获取的永远是127.0.0.1
             String value = InetAddress.getLocalHost().getHostAddress() + "|" + hjhsfConfigServer.getPort();
             this.createEphemeralNode(HJHSF_NODE + "/" + pathInfo + "/" + value, false);
         } catch (InterruptedException e) {
