@@ -87,7 +87,7 @@ public class HJHSFWatch implements Watcher {
         }
 
         String serviceName = path.substring(path.lastIndexOf("/") + 1);
-        if (!serviceName.equals(HJHSF_NODE)) {
+        if (!serviceName.equals(HJHSF_NODE.substring(1))) {
             metaInfo.computeIfAbsent(serviceName, k -> Collections.synchronizedSet(new HashSet<String>()));
         }
     }
@@ -148,6 +148,8 @@ public class HJHSFWatch implements Watcher {
                     for (String s : ip_port) {
                         strings.add(s);
                     }
+
+                    //todo 消费者也要监听服务 跟新服务地址
                     System.out.println("服务" + child + "提供者地址为--->"  + ip_port);
                 }
             } catch (KeeperException e) {

@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
  * Created by huangJin on 2023/5/19.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 public @interface HJHSFConsumer {
-    String serviceName();
+    String serviceName() default "";
 
 }
