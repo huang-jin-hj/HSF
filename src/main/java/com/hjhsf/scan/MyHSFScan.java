@@ -7,16 +7,24 @@ import com.hjhsf.proxy.HJHSFConsumerInvocationBean;
 import com.hjhsf.proxy.HJHSFProviderInvocationBean;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
+import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.context.annotation.ScopeMetadata;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import java.beans.Introspector;
 import java.lang.reflect.Field;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -24,6 +32,8 @@ import java.util.Set;
  */
 
 public class MyHSFScan extends ClassPathBeanDefinitionScanner{
+
+    private static final String SERVICE_INTERFACE = "SERVICE_INTERFACE";
 
 
     public MyHSFScan(BeanDefinitionRegistry registry) {
@@ -39,20 +49,40 @@ public class MyHSFScan extends ClassPathBeanDefinitionScanner{
 
     @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-        return beanDefinition.getMetadata().isInterface();
+        MergedAnnotation<HJHSFProvider> hjhsfProviderMergedAnnotation = beanDefinition.getMetadata().getAnnotations().get(HJHSFProvider.class);
+        if (hjhsfProviderMergedAnnotation.isPresent()){
+            return hjhsfProviderMergedAnnotation.getClass("serviceInterface").isInterface();
+        }
+        return true;
     }
+
+    @Override
+    public Set<BeanDefinition> findCandidateComponents(String basePackage) {
+        Set<BeanDefinition> candidateComponents = super.findCandidateComponents(basePackage);
+        for (BeanDefinition candidateComponent : candidateComponents) {
+            String beanClassName = candidateComponent.getBeanClassName();
+            if (StringUtils.hasText(beanClassName)){
+                try {
+                    Class<?> aClass = Class.forName(beanClassName);
+                    HJHSFProvider annotation = aClass.getAnnotation(HJHSFProvider.class);
+                    if (annotation != null){
+                        candidateComponent.setBeanClassName(annotation.serviceInterface().getName());
+                        candidateComponent.setAttribute(SERVICE_INTERFACE, annotation.serviceInterface());
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return candidateComponents;
+    }
+
 
     public void doScan1(String... basePackages) throws ClassNotFoundException {
         Set<BeanDefinitionHolder> beanDefinitionHolders = super.doScan(basePackages);
         for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
             GenericBeanDefinition definition = (GenericBeanDefinition) beanDefinitionHolder.getBeanDefinition();
             Class<?> beanClass = ClassUtils.forName(definition.getBeanClassName(), this.getClass().getClassLoader());
-            HJHSFProvider annotationP = beanClass.getAnnotation(HJHSFProvider.class);
-            if (annotationP != null){
-                definition.setBeanClass(HJHSFProviderInvocationBean.class);
-                definition.getConstructorArgumentValues().addGenericArgumentValue(annotationP.serviceInterface());
-            }
-
             ConsumerConfig annotationC = beanClass.getAnnotation(ConsumerConfig.class);
             if (annotationC != null){
                 for (Field declaredField : beanClass.getDeclaredFields()) {
@@ -64,6 +94,9 @@ public class MyHSFScan extends ClassPathBeanDefinitionScanner{
                         this.getRegistry().registerBeanDefinition(buildDefaultBeanName(declaredField.getType().getName()), beanDefinition);
                     }
                 }
+            }else {
+                definition.setBeanClass(HJHSFProviderInvocationBean.class);
+                definition.getConstructorArgumentValues().addGenericArgumentValue(definition.getAttribute(SERVICE_INTERFACE));
             }
         }
     }
@@ -73,22 +106,4 @@ public class MyHSFScan extends ClassPathBeanDefinitionScanner{
         return Introspector.decapitalize(shortClassName);
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println(AutoConfigurationPackages.class.getName());
-
-//        MyHSFScan testScan = new MyHSFScan(new DefaultListableBeanFactory());
-//        Set<BeanDefinitionHolder> beanDefinitionHolders = testScan.doScan("");
-//        System.out.println(beanDefinitionHolders);
-
-//        PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
-//         MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(pathMatchingResourcePatternResolver);
-//
-//        Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath*:com/yes/mapper/**/*.class");
-//
-//        MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resources[0]);
-//
-//        ScannedGenericBeanDefinition scannedGenericBeanDefinition = new ScannedGenericBeanDefinition(metadataReader);
-//
-//        AnnotationMetadata metadata = scannedGenericBeanDefinition.getMetadata();
-    }
 }

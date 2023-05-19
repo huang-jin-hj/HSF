@@ -14,10 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class HJHSFWatch implements Watcher {
 
-    ReentrantLock reentrantLock = new ReentrantLock();
-
-    Set<String> creating = new HashSet<>();
-
 
     @Autowired
     HJHSFConfigServer hjhsfConfigServer;
@@ -34,9 +30,13 @@ public class HJHSFWatch implements Watcher {
 
     Map<String, Set<String>> metaInfo = new ConcurrentHashMap<>();
 
-    public HJHSFWatch() throws Exception {
-        this.connect();
-        this.createPersistentNode(HJHSF_NODE, false);
+    public HJHSFWatch(){
+        try {
+            this.connect();
+            this.createPersistentNode(HJHSF_NODE, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void createService(String pathInfo) {

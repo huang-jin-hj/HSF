@@ -23,7 +23,6 @@ import java.util.Set;
  */
 
 
-@Component
 public class HJHSFCommunication implements ApplicationContextAware {
     private ServerSocket socket;
 
@@ -34,8 +33,12 @@ public class HJHSFCommunication implements ApplicationContextAware {
 
 
     @Autowired
-    public HJHSFCommunication(HJHSFConfigServer hjhsfConfigServer) throws IOException {
-        this.socket = new ServerSocket(StringUtils.hasText(String.valueOf(hjhsfConfigServer.getPort())) ? hjhsfConfigServer.getPort() : 8989);
+    public HJHSFCommunication(HJHSFConfigServer hjhsfConfigServer){
+        try {
+            this.socket = new ServerSocket(StringUtils.hasText(String.valueOf(hjhsfConfigServer.getPort())) ? hjhsfConfigServer.getPort() : 8989);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         listen();
     }
 
