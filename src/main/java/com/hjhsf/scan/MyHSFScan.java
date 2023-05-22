@@ -9,22 +9,16 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
-import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
-import org.springframework.context.annotation.ScopeMetadata;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.Introspector;
 import java.lang.reflect.Field;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
