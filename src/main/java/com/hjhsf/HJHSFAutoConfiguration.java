@@ -18,10 +18,6 @@ import org.springframework.context.annotation.Import;
 public class HJHSFAutoConfiguration {
 
     @Bean
-    HJHSFConsumerBeanPostProcessor hjhsfConsumerBeanPostProcessor(){
-        return new HJHSFConsumerBeanPostProcessor();
-    }
-    @Bean
     HJHSFWatch hjhsfWatch() {
         return new HJHSFWatch();
     }

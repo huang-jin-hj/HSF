@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 /**
  * Created by huangJin on 2023/5/19.
  */
+@Deprecated
 public class HJHSFConsumerBeanPostProcessor implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
 
     BeanFactory beanFactory;
